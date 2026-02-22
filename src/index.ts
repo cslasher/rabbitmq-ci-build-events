@@ -24,9 +24,10 @@ async function main(): Promise<void> {
   await setupTopology(setupCh);
   await setupCh.close();
 
-  // Each consumer needs its own channel so prefetch is per-consumer
-  const ch1 = await conn.createChannel();
-  const ch2 = await conn.createChannel();
+  // Each consumer needs its own confirm channel so we can ack only after
+  // retry/poison republishes are broker-confirmed.
+  const ch1 = await conn.createConfirmChannel();
+  const ch2 = await conn.createConfirmChannel();
 
   await startConsumer(ch1, 'consumer-1');
   await startConsumer(ch2, 'consumer-2');

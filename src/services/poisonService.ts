@@ -9,11 +9,11 @@ import type { PoisonRecord } from '../schema/events';
  *
  * The caller is responsible for ack-ing the original message afterwards.
  */
-export function sendToPoison(
-  channel:  amqp.Channel,
+export async function sendToPoison(
+  channel:  amqp.ConfirmChannel,
   msg:      amqp.ConsumeMessage,
   reason:   string,
-): void {
+): Promise<void> {
   const record: PoisonRecord = {
     raw:        msg.content.toString(),
     reason,
@@ -26,6 +26,7 @@ export function sendToPoison(
     Buffer.from(JSON.stringify(record)),
     { persistent: true, contentType: 'application/json' },
   );
+  await channel.waitForConfirms();
 
   addPoisonEvent(record);
 }
