@@ -121,7 +121,6 @@ export async function startConsumer(
       if (!settled) {
         channel.nack(msg, false, true);
       }
-      return;
     }
   });
 }
